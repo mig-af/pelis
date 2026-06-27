@@ -73,8 +73,9 @@ func (m *MovieController)InsertMovie(c *gin.Context){
 		c.IndentedJSON(http.StatusNotFound, &obj{Message: "Error jijo"})
 		return
 	}
+	userID, _ := c.Get("UserId")
 
-	Movie := &model.Movie{Name: MoviePost.Name, MovieUrl: MoviePost.MovieUrl}
+	Movie := &model.Movie{Name: MoviePost.Name, MovieUrl: MoviePost.MovieUrl, UserID: userID.(uint)}
 	err := m.Repo.Save(Movie)
 	if (err != nil){
 		c.IndentedJSON(http.StatusNotFound, &obj{Message: "Error jijo"})

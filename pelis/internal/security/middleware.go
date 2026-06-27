@@ -3,6 +3,8 @@ package security
 import (
 	"fmt"
 	"net/http"
+	
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,10 +14,24 @@ func AuthMiddleware()gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 
 		
-		fmt.Println("----------a--------")
-		fmt.Println(ctx.Request.Header.Get("Authorization"))
-		ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"Msg":"No"})
-		ctx.Abort()
+		fmt.Println("----------middleware--------")
+		jwt := strings.ReplaceAll(ctx.Request.Header.Get("Authorization"), "Bearer ", "")
+		verify, err := ValidateJWT(jwt)
+
+		if jwt == "" {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Error":"Token empty"})
+			return
+		}
+		if err != nil{
+			fmt.Println(err.Error())
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Error":"Invalid token"})
+			return
+		}
+		ctx.Set("UserId", verify.Id)
+		ctx.Set("UserEmail", verify.Email)
+		ctx.Next()
+		fmt.Println("--------pass-------")
+		
 
 	}
 }
