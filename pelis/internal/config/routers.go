@@ -2,6 +2,7 @@ package config
 
 import (
 	"pelis/internal/controler"
+	"pelis/internal/security"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,11 +16,15 @@ func LoadRouters(controllerMovie *controler.MovieController, controllerUser *con
 	routers.POST("/login", controllerUser.Login)
 
 	api := routers.Group("/api")
-	api.GET("/movies", controllerMovie.GetAllMovies)
-	api.GET("/movies/:id", controllerMovie.GetById)
-	api.POST("/movies", controllerMovie.InsertMovie)
-	api.DELETE("/movies/:id", controllerMovie.DeleteById)
-	api.PUT("/movies", controllerMovie.UpdateMovie)
+	api.Use(security.AuthMiddleware())
+	{
+		api.GET("/movies", controllerMovie.GetAllMovies)
+		api.GET("/movies/:id", controllerMovie.GetById)
+		api.POST("/movies", controllerMovie.InsertMovie)
+		api.DELETE("/movies/:id", controllerMovie.DeleteById)
+		api.PUT("/movies", controllerMovie.UpdateMovie)
+	
+	}
 	
 	return routers
 }
