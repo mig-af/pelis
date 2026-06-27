@@ -1,0 +1,18 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: pelis_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: mikis
+      POSTGRES_PASSWORD: mikis123
+      POSTGRES_DB: pelisdb
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+
+
+
+volumes:
+  postgresdata:
