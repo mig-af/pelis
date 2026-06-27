@@ -19,12 +19,12 @@ func AuthMiddleware()gin.HandlerFunc{
 		verify, err := ValidateJWT(jwt)
 
 		if jwt == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Error":"Token empty"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, &MessageError{Ok: false, Message: "Token empty"})
 			return
 		}
 		if err != nil{
 			fmt.Println(err.Error())
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Error":"Invalid token"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, &MessageError{Ok: false, Message: "Invalid token"})
 			return
 		}
 		ctx.Set("UserId", verify.Id)

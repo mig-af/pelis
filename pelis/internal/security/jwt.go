@@ -2,6 +2,7 @@ package security
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -16,7 +17,7 @@ type CustomClaim struct{
 	jwt.RegisteredClaims
 }
 
-var pruebitaKeysito  = []byte("manchoso")//pasar a env Variable despues
+var key_jwt  = []byte(os.Getenv("JWT_SECRET"))//pasar a env Variable 
 
 func GenerateJWT(id uint, email string)(string, error){
 	claims := &CustomClaim{
@@ -28,7 +29,7 @@ func GenerateJWT(id uint, email string)(string, error){
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokeString, err := token.SignedString(pruebitaKeysito)
+	tokeString, err := token.SignedString(key_jwt)
 	if( err != nil){
 		return "", err
 	}
@@ -39,7 +40,7 @@ func GenerateJWT(id uint, email string)(string, error){
 func ValidateJWT(token string)(*CustomClaim, error){
 
 	resp, err := jwt.ParseWithClaims(token, &CustomClaim{}, func(t *jwt.Token) (any, error) {
-		return pruebitaKeysito, nil
+		return key_jwt, nil
 	})
 	if( err != nil){
 		return nil, err

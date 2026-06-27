@@ -3,10 +3,12 @@ package controler
 import (
 	"fmt"
 	"net/http"
-	"strconv"
-	"pelis/internal/repository"
 	"pelis/internal/domain/models"
 	"pelis/internal/domain/movie"
+	"pelis/internal/repository"
+	"pelis/internal/security"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,11 +26,16 @@ type obj struct{
 
 //GET BY ID
 func (m *MovieController) GetById(c *gin.Context){
-	id := c.Param("id")
-	idd, _ := strconv.Atoi(id)
-	Movie, err := m.Repo.GetById(uint(idd))
+	idMovie := c.Param("id")
+	idd, _ := strconv.Atoi(idMovie)
+	userId, ok := c.Get("UserId")
+	if(!ok){
+		c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Not authorized"})
+		return	
+	}
+	Movie, err := m.Repo.GetById(userId.(uint) ,uint(idd))
 	if(err != nil){
-		c.IndentedJSON(http.StatusNotFound, &obj{Message: "No existe"})
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
 		return
 	}
 	RespMovie := &movie.MovieResponse{
@@ -45,40 +52,49 @@ func (m *MovieController) GetById(c *gin.Context){
 
 
 
-//GET ALL ITEMS
+//--------------------GET ALL ITEMS
 func (m *MovieController) GetAllMovies(c *gin.Context){
-	movies, err := m.Repo.GetAllMovies()
-	if(err != nil){
-		c.IndentedJSON(http.StatusNotFound, &obj{Message: "No existe papu"})
+	userId, ok := c.Get("UserId")
+	if(!ok){
+		c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Not authorized"})
+		return	
 	}
-	var Movies []*movie.MovieResponse
+
+	movies, err := m.Repo.GetAllMovies(userId.(uint))
+	if(err != nil){
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
+		return
+	}
+	var MoviesResponse []*movie.MovieResponse
 	for _, v := range movies{
-		Movies = append(Movies, &movie.MovieResponse{
+		MoviesResponse = append(MoviesResponse, &movie.MovieResponse{
 			Id: v.ID,Name: v.Name, MovieUrl: v.MovieUrl, PosterUrl: v.PosterUrl,
 			Duration: v.Duration, Sinopsis: v.Sinopsis, Genre: v.Genre,
 			
 		})
 	}
 	//fmt.Println(movies)
-	c.IndentedJSON(http.StatusOK, &Movies)
+	c.IndentedJSON(http.StatusOK, &MoviesResponse)
 }
 
-//POST INSERT MOVIE
+
+//------------------POST INSERT MOVIE
 func (m *MovieController)InsertMovie(c *gin.Context){
-	
+	userID, _ := c.Get("UserId")
 	var MoviePost movie.MoviePost
+
+
 	data := c.BindJSON(&MoviePost)
 	if(data != nil){
 		fmt.Println(data)
-		c.IndentedJSON(http.StatusNotFound, &obj{Message: "Error jijo"})
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: data.Error()})
 		return
 	}
-	userID, _ := c.Get("UserId")
-
+	
 	Movie := &model.Movie{Name: MoviePost.Name, MovieUrl: MoviePost.MovieUrl, UserID: userID.(uint)}
 	err := m.Repo.Save(Movie)
 	if (err != nil){
-		c.IndentedJSON(http.StatusNotFound, &obj{Message: "Error jijo"})
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
 		return
 	}
 	moviResponse := &movie.MovieResponse{
@@ -97,38 +113,51 @@ func (m *MovieController)InsertMovie(c *gin.Context){
 func (m *MovieController)DeleteById(c *gin.Context){
 	id := c.Param("id")
 	idd, _ := strconv.Atoi(id)
-	resp := m.Repo.DeleteById(uint(idd))
+	userId, ok := c.Get("UserId")
+	if(!ok){
+		c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Not authorized"})
+		return	
+	}
+
+	resp := m.Repo.DeleteById(userId.(uint), uint(idd))
 	if(resp != nil){
-		c.IndentedJSON(http.StatusNotFound, &obj{Message: "Not found"})
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: resp.Error()})
 		return
 	}
 	c.IndentedJSON(http.StatusNoContent, &obj{Message: "Ok"})
 
 }
 
-
+//-------PUT----
 func (m *MovieController) UpdateMovie(c *gin.Context){
 	var movieUpdate *movie.MovieUpdate
 
+	userId, ok := c.Get("UserId")
+	if(!ok){
+		c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Not authorized"})
+		return	
+	}
+
+
 	body := c.BindJSON(&movieUpdate)
 	if(body != nil){
-		c.IndentedJSON(http.StatusBadRequest, &obj{Message: "Error json"})
+		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: body.Error()})
 		return
 	}
 
-	Movie, err := m.Repo.GetById(movieUpdate.Id)
+	Movie, err := m.Repo.GetById(userId.(uint), movieUpdate.Id)
 	if(err != nil){
-		c.IndentedJSON(http.StatusNotFound, &obj{Message: "No hay una pelicula con tal id"})
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
 		return
 	}
-
+	Movie.Update(movieUpdate)
 	erro := m.Repo.Update(movieUpdate.Id, &Movie)
 	if( erro != nil){
 		fmt.Println("------\n"+erro.Error())
-		c.IndentedJSON(http.StatusNotModified, &obj{Message: "error "+erro.Error()})
+		c.IndentedJSON(http.StatusNotModified, &security.MessageError{Ok: false, Message: erro.Error()})
 		return
 	}
-	fmt.Println(Movie)
+	//fmt.Println(Movie)
 	RespMovie := &movie.MovieResponse{
 		
 		Id: Movie.GetId(),
