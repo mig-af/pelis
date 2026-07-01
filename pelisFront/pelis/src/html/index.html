@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineStream - Tu Plataforma de Streaming</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.min.css">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  body { background: #0a0a0f; color: #fff; overflow-x: hidden; }
+  
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  .movie-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .movie-card:hover { transform: scale(1.08) translateY(-8px); z-index: 10; }
+  .movie-card:hover .movie-info { opacity: 1; transform: translateY(0); }
+  .movie-info { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+  
+  .hero-gradient { background: linear-gradient(180deg, rgba(10,10,15,0) 0%, rgba(10,10,15,0.6) 50%, #0a0a0f 100%); }
+  .hero-gradient-left { background: linear-gradient(90deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.5) 50%, transparent 100%); }
+  
+  .nav-blur { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+  
+  .btn-primary { background: linear-gradient(135deg, #e50914 0%, #b20710 100%); transition: all 0.3s; }
+  .btn-primary:hover { background: linear-gradient(135deg, #ff0a16 0%, #d40812 100%); transform: scale(1.05); }
+  
+  .btn-secondary { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); transition: all 0.3s; }
+  .btn-secondary:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+  
+  .carousel-btn { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); transition: all 0.3s; }
+  .carousel-btn:hover { background: rgba(229,9,20,0.9); }
+  
+  .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+  
+  .play-btn { animation: pulse-ring 2s infinite; }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(229,9,20,0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(229,9,20,0); }
+    100% { box-shadow: 0 0 0 0 rgba(229,9,20,0); }
+  }
+  
+  .fade-in { animation: fadeIn 0.6s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .slide-in { animation: slideIn 0.4s ease-out; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+  
+  .shimmer { background: linear-gradient(90deg, #1a1a24 25%, #2a2a3a 50%, #1a1a24 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  
+  .rating-star { color: #fbbf24; }
+  
+  .progress-bar { background: linear-gradient(90deg, #e50914 0%, #ff4d5a 100%); }
+  
+  .category-pill { transition: all 0.3s; }
+  .category-pill:hover, .category-pill.active { background: #e50914; color: white; }
+  
+  .search-input:focus { box-shadow: 0 0 0 3px rgba(229,9,20,0.3); }
+  
+  .player-controls { background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%); }
+  
+  .volume-slider::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: #e50914; border-radius: 50%; cursor: pointer; }
+  .volume-slider::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 md:px-12 py-4">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="scrollToTop()">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <span class="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">CineStream</span>
+      </div>
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#" class="hover:text-red-500 transition font-medium">Inicio</a>
+        <a href="#tendencias" class="hover:text-red-500 transition">Películas</a>
+        <a href="#series" class="hover:text-red-500 transition">Series</a>
+        <a href="#" class="hover:text-red-500 transition">Novedades</a>
+        <a href="#" class="hover:text-red-500 transition">Mi Lista</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="relative hidden md:block">
+        <input id="searchInput" type="text" placeholder="Buscar películas..." 
+          class="search-input bg-white/10 border border-white/20 rounded-full px-4 py-2 pl-10 text-sm w-64 focus:outline-none focus:border-red-500 transition"
+          oninput="handleSearch(this.value)">
+        <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+      <button class="relative p-2 hover:bg-white/10 rounded-full transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+      </button>
+      <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 rounded-full px-2 py-1 transition">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold">JD</div>
+        <svg class="w-4 h-4 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="relative h-screen w-full overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/14e2f1af5-bb46-4a5e-b018-01290c458038.png" 
+      alt="Hero" class="w-full h-full object-cover">
+    <div class="absolute inset-0 hero-gradient"></div>
+    <div class="absolute inset-0 hero-gradient-left"></div>
+  </div>
+  
+  <div class="relative h-full flex items-center px-6 md:px-12 pt-24">
+    <div class="max-w-2xl fade-in">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded">NUEVO</span>
+        <span class="text-sm text-gray-300">•</span>
+        <span class="text-sm text-gray-300">2026</span>
+        <span class="text-sm text-gray-300">•</span>
+        <span class="text-sm text-gray-300">2h 34min</span>
+        <span class="text-sm text-gray-300">•</span>
+        <span class="border border-white/40 text-xs px-2 py-0.5 rounded">16+</span>
+      </div>
+      <h1 class="text-5xl md:text-7xl font-bold mb-4 leading-tight">Neon<br><span class="text-red-500">Horizon</span></h1>
+      <div class="flex items-center gap-4 mb-6">
+        <div class="flex items-center gap-1">
+          <svg class="w-5 h-5 rating-star" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span class="font-bold">9.2</span>
+        </div>
+        <span class="text-gray-400">|</span>
+        <span class="text-gray-300">Ciencia Ficción • Acción • Thriller</span>
+      </div>
+      <p class="text-lg text-gray-200 mb-8 leading-relaxed">
+        En el año 2087, una ciudad futurista se enfrenta a una conspiración que amenaza con destruir la realidad misma. 
+        Un hacker solitario descubrirá la verdad oculta tras las luces de neón.
+      </p>
+      <div class="flex items-center gap-4">
+        <button onclick="openPlayer('Neon Horizon')" class="btn-primary px-8 py-3 rounded-full font-bold flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Reproducir
+        </button>
+        <button onclick="openModal(0)" class="btn-secondary px-8 py-3 rounded-full font-bold flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Más información
+        </button>
+        <button class="btn-secondary p-3 rounded-full">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+    <span class="text-xs text-gray-400">Desliza</span>
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+  </div>
+</section>
+
+<!-- Categories Pills -->
+<section class="px-6 md:px-12 py-8 sticky top-16 z-40 bg-[#0a0a0f]/95 nav-blur">
+  <div class="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
+    <button class="category-pill active px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Todas</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Acción</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Ciencia Ficción</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Comedia</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Drama</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Terror</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Fantasía</button>
+    <button class="category-pill px-5 py-2 rounded-full bg-white/10 text-sm font-medium whitespace-nowrap">Animación</button>
+  </div>
+</section>
+
+<!-- Trending Section -->
+<section id="tendencias" class="px-6 md:px-12 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+        <span class="w-1 h-8 bg-red-600 rounded-full"></span>
+        Tendencias ahora
+      </h2>
+      <p class="text-gray-400 text-sm mt-1 ml-4">Lo más visto esta semana</p>
+    </div>
+    <button class="text-sm text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+      Ver todo
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div class="relative group">
+    <button onclick="scrollCarousel('trending', -1)" class="carousel-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div id="trending" class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
+      <!-- Cards injected via JS -->
+    </div>
+    <button onclick="scrollCarousel('trending', 1)" class="carousel-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Action Section -->
+<section class="px-6 md:px-12 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+        <span class="w-1 h-8 bg-red-600 rounded-full"></span>
+        Acción y Aventura
+      </h2>
+      <p class="text-gray-400 text-sm mt-1 ml-4">Adrenalina pura</p>
+    </div>
+    <button class="text-sm text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+      Ver todo
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div class="relative group">
+    <button onclick="scrollCarousel('action', -1)" class="carousel-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div id="action" class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+    <button onclick="scrollCarousel('action', 1)" class="carousel-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Sci-Fi Section -->
+<section class="px-6 md:px-12 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+        <span class="w-1 h-8 bg-red-600 rounded-full"></span>
+        Ciencia Ficción
+      </h2>
+      <p class="text-gray-400 text-sm mt-1 ml-4">Viajes al futuro</p>
+    </div>
+  </div>
+  <div class="relative group">
+    <button onclick="scrollCarousel('scifi', -1)" class="carousel-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div id="scifi" class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+    <button onclick="scrollCarousel('scifi', 1)" class="carousel-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Comedy Section -->
+<section class="px-6 md:px-12 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+        <span class="w-1 h-8 bg-red-600 rounded-full"></span>
+        Comedia
+      </h2>
+      <p class="text-gray-400 text-sm mt-1 ml-4">Para reír sin parar</p>
+    </div>
+  </div>
+  <div class="relative group">
+    <button onclick="scrollCarousel('comedy', -1)" class="carousel-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div id="comedy" class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+    <button onclick="scrollCarousel('comedy', 1)" class="carousel-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Drama Section -->
+<section class="px-6 md:px-12 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+        <span class="w-1 h-8 bg-red-600 rounded-full"></span>
+        Drama
+      </h2>
+      <p class="text-gray-400 text-sm mt-1 ml-4">Historias que conmueven</p>
+    </div>
+  </div>
+  <div class="relative group">
+    <button onclick="scrollCarousel('drama', -1)" class="carousel-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div id="drama" class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+    <button onclick="scrollCarousel('drama', 1)" class="carousel-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Top 10 Section -->
+<section class="px-6 md:px-12 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+        <span class="w-1 h-8 bg-red-600 rounded-full"></span>
+        Top 10 en CineStream
+      </h2>
+      <p class="text-gray-400 text-sm mt-1 ml-4">Las más populares del mes</p>
+    </div>
+  </div>
+  <div class="flex gap-4 overflow-x-auto scrollbar-hide pb-4" id="top10"></div>
+</section>
+
+<!-- Features Section -->
+<section class="px-6 md:px-12 py-16">
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-8 hover:border-red-500/50 transition">
+      <div class="w-14 h-14 rounded-xl bg-red-600/20 flex items-center justify-center mb-4">
+        <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+      </div>
+      <h3 class="text-xl font-bold mb-2">Calidad 4K HDR</h3>
+      <p class="text-gray-400 text-sm">Disfruta de tus películas favoritas en la máxima calidad de imagen y sonido Dolby Atmos.</p>
+    </div>
+    <div class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-8 hover:border-red-500/50 transition">
+      <div class="w-14 h-14 rounded-xl bg-red-600/20 flex items-center justify-center mb-4">
+        <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </div>
+      <h3 class="text-xl font-bold mb-2">Descarga Offline</h3>
+      <p class="text-gray-400 text-sm">Descarga tus películas y series para verlas sin conexión a internet, donde quieras.</p>
+    </div>
+    <div class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-8 hover:border-red-500/50 transition">
+      <div class="w-14 h-14 rounded-xl bg-red-600/20 flex items-center justify-center mb-4">
+        <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      </div>
+      <h3 class="text-xl font-bold mb-2">Perfiles Múltiples</h3>
+      <p class="text-gray-400 text-sm">Hasta 5 perfiles por cuenta. Cada miembro de la familia con sus preferencias.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="px-6 md:px-12 py-12 border-t border-white/10">
+  <div class="grid md:grid-cols-4 gap-8 mb-8">
+    <div>
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <span class="text-2xl font-bold">CineStream</span>
+      </div>
+      <p class="text-gray-400 text-sm">La mejor plataforma de streaming con miles de películas y series en un solo lugar.</p>
+    </div>
+    <div>
+      <h4 class="font-bold mb-4">Navegación</h4>
+      <ul class="space-y-2 text-sm text-gray-400">
+        <li><a href="#" class="hover:text-red-500 transition">Inicio</a></li>
+        <li><a href="#" class="hover:text-red-500 transition">Películas</a></li>
+        <li><a href="#" class="hover:text-red-500 transition">Series</a></li>
+        <li><a href="#" class="hover:text-red-500 transition">Novedades</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-bold mb-4">Ayuda</h4>
+      <ul class="space-y-2 text-sm text-gray-400">
+        <li><a href="#" class="hover:text-red-500 transition">Centro de ayuda</a></li>
+        <li><a href="#" class="hover:text-red-500 transition">Términos de uso</a></li>
+        <li><a href="#" class="hover:text-red-500 transition">Privacidad</a></li>
+        <li><a href="#" class="hover:text-red-500 transition">Contacto</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-bold mb-4">Síguenos</h4>
+      <div class="flex gap-3">
+        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-600 transition">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-600 transition">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-600 transition">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+    <p class="text-gray-500 text-sm">© 2026 CineStream. Todos los derechos reservados.</p>
+    <div class="flex gap-4 text-sm text-gray-500">
+      <span>Español</span>
+      <span>•</span>
+      <span>USD</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Movie Detail Modal -->
+<div id="movieModal" class="fixed inset-0 z-[100] hidden modal-overlay items-center justify-center p-4">
+  <div class="bg-[#14141f] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide relative slide-in">
+    <button onclick="closeModal()" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 flex items-center justify-center hover:bg-red-600 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <div class="relative h-80 md:h-96">
+      <img id="modalImage" src="" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-[#14141f] via-[#14141f]/50 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <h2 id="modalTitle" class="text-4xl md:text-5xl font-bold mb-3"></h2>
+        <div class="flex items-center gap-3 flex-wrap">
+          <span id="modalYear" class="text-sm"></span>
+          <span class="text-gray-400">•</span>
+          <span id="modalDuration" class="text-sm"></span>
+          <span class="text-gray-400">•</span>
+          <span id="modalRating" class="text-sm flex items-center gap-1">
+            <svg class="w-4 h-4 rating-star" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span></span>
+          </span>
+          <span class="border border-white/40 text-xs px-2 py-0.5 rounded">HD</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-8">
+      <div class="flex gap-3 mb-6">
+        <button id="modalPlayBtn" class="btn-primary px-8 py-3 rounded-full font-bold flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Reproducir
+        </button>
+        <button class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Mi Lista
+        </button>
+        <button class="btn-secondary p-3 rounded-full">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        </button>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <p id="modalDescription" class="text-gray-300 leading-relaxed mb-4"></p>
+          <div class="flex gap-2 flex-wrap" id="modalGenres"></div>
+        </div>
+        <div class="space-y-3 text-sm">
+          <div><span class="text-gray-500">Director:</span> <span id="modalDirector" class="text-gray-200"></span></div>
+          <div><span class="text-gray-500">Reparto:</span> <span id="modalCast" class="text-gray-200"></span></div>
+          <div><span class="text-gray-500">Género:</span> <span id="modalGenreText" class="text-gray-200"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Video Player -->
+<div id="videoPlayer" class="fixed inset-0 z-[200] hidden bg-black">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <img id="playerImage" src="" class="absolute inset-0 w-full h-full object-cover opacity-50">
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30"></div>
+    
+    <!-- Player top bar -->
+    <div class="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-10">
+      <button onclick="closePlayer()" class="flex items-center gap-2 hover:text-red-500 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span class="font-medium">Volver</span>
+      </button>
+      <h3 id="playerTitle" class="font-bold text-lg"></h3>
+      <div class="flex items-center gap-4">
+        <button class="hover:text-red-500 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Play button center -->
+    <button id="playPauseBtn" onclick="togglePlay()" class="relative z-10 w-24 h-24 rounded-full bg-red-600 play-btn flex items-center justify-center hover:scale-110 transition">
+      <svg id="playIcon" class="w-12 h-12 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="pauseIcon" class="w-12 h-12 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+    </button>
+    
+    <!-- Player controls bottom -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 player-controls z-10">
+      <div class="mb-4">
+        <div class="relative w-full h-1 bg-white/30 rounded-full cursor-pointer" onclick="seekVideo(event)">
+          <div id="progressFill" class="progress-bar h-full rounded-full" style="width: 0%"></div>
+          <div id="progressThumb" class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-red-600 rounded-full shadow-lg" style="left: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-400 mt-2">
+          <span id="currentTime">0:00</span>
+          <span id="totalTime">2:34:00</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button onclick="togglePlay()" class="hover:text-red-500 transition">
+            <svg id="controlPlayIcon" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="controlPauseIcon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+          </button>
+          <button class="hover:text-red-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
+          </button>
+          <button class="hover:text-red-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/></svg>
+          </button>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+            <input type="range" class="volume-slider w-20" min="0" max="100" value="80">
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="hover:text-red-500 transition text-sm font-medium">Subtítulos</button>
+          <button class="hover:text-red-500 transition text-sm font-medium">1x</button>
+          <button class="hover:text-red-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search Results Modal -->
+<div id="searchModal" class="fixed inset-0 z-[150] hidden modal-overlay">
+  <div class="max-w-4xl mx-auto mt-24 p-6">
+    <div class="bg-[#14141f] rounded-2xl p-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold">Resultados de búsqueda</h3>
+        <button onclick="closeSearch()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-600 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="searchResults" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+      <div id="noResults" class="hidden text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <p class="text-gray-400">No se encontraron resultados</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Movie data
+const movies = [
+  {
+    id: 0,
+    title: "Neon Horizon",
+    year: "2026",
+    duration: "2h 34min",
+    rating: "9.2",
+    genre: ["Ciencia Ficción", "Acción", "Thriller"],
+    description: "En el año 2087, una ciudad futurista se enfrenta a una conspiración que amenaza con destruir la realidad misma. Un hacker solitario descubrirá la verdad oculta tras las luces de neón.",
+    director: "Alejandro Ruiz",
+    cast: "Carlos Méndez, Ana Torres, Diego Vega",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/14e2f1af5-bb46-4a5e-b018-01290c458038.png",
+    category: ["trending", "scifi"]
+  },
+  {
+    id: 1,
+    title: "Fuego Cruzado",
+    year: "2026",
+    duration: "1h 58min",
+    rating: "8.7",
+    genre: ["Acción", "Thriller"],
+    description: "Un ex agente especial es llamado de vuelta al servicio cuando su familia es secuestrada por una organización criminal internacional. Solo tiene 24 horas para salvarlos.",
+    director: "María González",
+    cast: "Roberto Silva, Laura Jiménez, Pablo Ruiz",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/18834899f-e092-4e55-8757-372cbf14c689.png",
+    category: ["trending", "action"]
+  },
+  {
+    id: 2,
+    title: "Más Allá del Cosmos",
+    year: "2025",
+    duration: "2h 15min",
+    rating: "9.0",
+    genre: ["Ciencia Ficción", "Aventura"],
+    description: "Una misión espacial de exploración se pierde en los confines del universo. Los astronautas deben encontrar el camino de regreso antes de que sea demasiado tarde.",
+    director: "Fernando López",
+    cast: "Elena Castro, Miguel Ángel, Sofía Ramírez",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1a2d788cf-2e5f-4d40-9e52-a4a46ce06c1b.png",
+    category: ["trending", "scifi"]
+  },
+  {
+    id: 3,
+    title: "Amor en Primavera",
+    year: "2026",
+    duration: "1h 45min",
+    rating: "7.8",
+    genre: ["Comedia", "Romance"],
+    description: "Dos desconocidos se encuentran por casualidad en una cafetería de París. Lo que comienza como una conversación trivial se transforma en el amor de sus vidas.",
+    director: "Isabel Martín",
+    cast: "Javier Pérez, Carmen Díaz, Luis Herrera",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/10a57602b-3a0d-4c0a-bc00-2c55fde2327a.png",
+    category: ["comedy", "trending"]
+  },
+  {
+    id: 4,
+    title: "La Casa Susurrante",
+    year: "2025",
+    duration: "1h 52min",
+    rating: "8.4",
+    genre: ["Terror", "Misterio"],
+    description: "Una familia se muda a una antigua mansión sin saber que está habitada por entidades oscuras. Los susurros en la noche son solo el comienzo del horror.",
+    director: "Ricardo Vargas",
+    cast: "Patricia Mora, Andrés Gómez, Lucía Fernández",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/12aada0be-0f9b-4360-b2be-337b7a06940e.png",
+    category: ["trending"]
+  },
+  {
+    id: 5,
+    title: "El Bosque Encantado",
+    year: "2026",
+    duration: "1h 38min",
+    rating: "8.9",
+    genre: ["Animación", "Fantasía", "Familia"],
+    description: "Un pequeño zorro azul descubre un mundo mágico lleno de criaturas fantásticas. Una aventura inolvidable para toda la familia.",
+    director: "Carmen Ruiz",
+    cast: "Voces: Pedro Sánchez, María López, Juan Torres",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1637d3ab0-3a42-42f1-ba4d-b539bae1534f.png",
+    category: ["trending", "comedy"]
+  },
+  {
+    id: 6,
+    title: "Sombras de la Ciudad",
+    year: "2025",
+    duration: "2h 10min",
+    rating: "8.6",
+    genre: ["Drama", "Crimen", "Thriller"],
+    description: "Un detective veterano investiga una serie de crímenes en la ciudad lluviosa. Cada pista lo acerca más a una verdad que preferiría no conocer.",
+    director: "Enrique Navarro",
+    cast: "Antonio Banderas, Penélope Cruz, Javier Bardem",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1575a92b5-fc2c-475a-870c-b316cd042262.png",
+    category: ["drama", "trending"]
+  },
+  {
+    id: 7,
+    title: "El Último Caballero",
+    year: "2026",
+    duration: "2h 45min",
+    rating: "9.1",
+    genre: ["Fantasía", "Acción", "Aventura"],
+    description: "En un reino medieval asediado por dragones, un caballero solitario debe emprender una misión épica para salvar a su pueblo de la destrucción total.",
+    director: "Pablo Iglesias",
+    cast: "Hugo Silva, Blanca Suárez, Mario Casas",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1b207e4d0-7760-4957-b83d-b04faadaa2fb.png",
+    category: ["action", "trending"]
+  },
+  {
+    id: 8,
+    title: "El Campeón",
+    year: "2025",
+    duration: "2h 05min",
+    rating: "8.8",
+    genre: ["Drama", "Deportes"],
+    description: "La historia real de un boxeador que, contra todo pronóstico, logra convertirse en campeón mundial superando adversidades personales y profesionales.",
+    director: "Javier Reyes",
+    cast: "Óscar Martínez, Ricardo Darín, Dolores Fonzi",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1a21ea808-849e-46bd-aa14-ccd8a51e76cd.png",
+    category: ["drama"]
+  },
+  {
+    id: 9,
+    title: "Verano Sin Fin",
+    year: "2026",
+    duration: "1h 42min",
+    rating: "7.5",
+    genre: ["Comedia", "Aventura"],
+    description: "Un grupo de amigos decide pasar el verano en una isla paradisíaca. Lo que planeaban ser vacaciones tranquilas se convierte en una aventura hilarante.",
+    director: "Laura Sánchez",
+    cast: "Marta Hazas, Yon González, Amaia Salamanca",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/175df71a9-3354-439f-88fc-1a93690401b0.png",
+    category: ["comedy"]
+  },
+  {
+    id: 10,
+    title: "Código Oscuro",
+    year: "2026",
+    duration: "2h 20min",
+    rating: "8.9",
+    genre: ["Ciencia Ficción", "Thriller"],
+    description: "Un hacker descubre una conspiración global mientras intenta descifrar un código encriptado. El tiempo se agota y las consecuencias son catastróficas.",
+    director: "David Fincher",
+    cast: "Jesse Plemons, Rooney Mara, Daniel Craig",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1ec1a6a46-8925-42d8-a28d-d3f092a1d5fb.png",
+    category: ["scifi", "trending"]
+  },
+  {
+    id: 11,
+    title: "Reflejos",
+    year: "2025",
+    duration: "1h 55min",
+    rating: "8.3",
+    genre: ["Misterio", "Drama", "Thriller"],
+    description: "Una mujer comienza a ver reflejos perturbadores en los cristales de su apartamento. Lo que parece ser paranoia se convierte en una pesadilla real.",
+    director: "Guillermo del Toro",
+    cast: "Sally Hawkins, Doug Jones, Michael Shannon",
+    image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1b69e0782-075f-48f1-8fab-b32461883016.png",
+    category: ["drama", "trending"]
+  }
+];
+
+// Render movie card
+function createMovieCard(movie, index) {
+  return `
+    <div class="movie-card flex-shrink-0 w-52 md:w-64 cursor-pointer relative rounded-xl overflow-hidden group" onclick="openModal(${movie.id})">
+      <div class="aspect-[2/3] relative">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+        <div class="absolute top-2 left-2 flex gap-2">
+          <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">HD</span>
+        </div>
+        <div class="absolute top-2 right-2">
+          <button class="w-8 h-8 rounded-full bg-black/60 flex items-center justify-center hover:bg-red-600 transition" onclick="event.stopPropagation()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </button>
+        </div>
+        <div class="movie-info absolute bottom-0 left-0 right-0 p-4">
+          <div class="flex items-center gap-1 mb-2">
+            <svg class="w-4 h-4 rating-star" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span class="text-sm font-bold">${movie.rating}</span>
+          </div>
+          <h3 class="font-bold text-sm mb-1">${movie.title}</h3>
+          <p class="text-xs text-gray-300 mb-2">${movie.year} • ${movie.genre[0]}</p>
+          <button onclick="event.stopPropagation(); openPlayer('${movie.title}', ${movie.id})" class="w-full btn-primary py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Reproducir
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Render top 10 card
+function createTop10Card(movie, rank) {
+  return `
+    <div class="flex-shrink-0 flex items-end cursor-pointer group" onclick="openModal(${movie.id})">
+      <span class="text-8xl font-black text-transparent" style="-webkit-text-stroke: 3px #e50914; margin-right: -20px; z-index: 1;">${rank}</span>
+      <div class="w-40 md:w-48 aspect-[2/3] rounded-xl overflow-hidden relative transition group-hover:scale-105">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-3">
+          <h3 class="font-bold text-sm">${movie.title}</h3>
+          <p class="text-xs text-gray-300">${movie.year}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Populate carousels
+function populateCarousels() {
+  const trending = document.getElementById('trending');
+  const action = document.getElementById('action');
+  const scifi = document.getElementById('scifi');
+  const comedy = document.getElementById('comedy');
+  const drama = document.getElementById('drama');
+  const top10 = document.getElementById('top10');
+  
+  movies.filter(m => m.category.includes('trending')).forEach((m, i) => {
+    trending.innerHTML += createMovieCard(m, i);
+  });
+  movies.filter(m => m.category.includes('action')).forEach((m, i) => {
+    action.innerHTML += createMovieCard(m, i);
+  });
+  movies.filter(m => m.category.includes('scifi')).forEach((m, i) => {
+    scifi.innerHTML += createMovieCard(m, i);
+  });
+  movies.filter(m => m.category.includes('comedy')).forEach((m, i) => {
+    comedy.innerHTML += createMovieCard(m, i);
+  });
+  movies.filter(m => m.category.includes('drama')).forEach((m, i) => {
+    drama.innerHTML += createMovieCard(m, i);
+  });
+  
+  // Top 10
+  const topMovies = [...movies].sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating)).slice(0, 10);
+  topMovies.forEach((m, i) => {
+    top10.innerHTML += createTop10Card(m, i + 1);
+  });
+}
+
+// Carousel scroll
+function scrollCarousel(id, direction) {
+  const container = document.getElementById(id);
+  const scrollAmount = container.clientWidth * 0.8;
+  container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+}
+
+// Modal
+function openModal(id) {
+  const movie = movies.find(m => m.id === id);
+  if (!movie) return;
+  
+  document.getElementById('modalImage').src = movie.image;
+  document.getElementById('modalTitle').textContent = movie.title;
+  document.getElementById('modalYear').textContent = movie.year;
+  document.getElementById('modalDuration').textContent = movie.duration;
+  document.getElementById('modalRating').querySelector('span').textContent = movie.rating;
+  document.getElementById('modalDescription').textContent = movie.description;
+  document.getElementById('modalDirector').textContent = movie.director;
+  document.getElementById('modalCast').textContent = movie.cast;
+  document.getElementById('modalGenreText').textContent = movie.genre.join(', ');
+  
+  const genresContainer = document.getElementById('modalGenres');
+  genresContainer.innerHTML = movie.genre.map(g => 
+    `<span class="bg-white/10 px-3 py-1 rounded-full text-xs">${g}</span>`
+  ).join('');
+  
+  document.getElementById('modalPlayBtn').onclick = () => {
+    closeModal();
+    openPlayer(movie.title, movie.id);
+  };
+  
+  document.getElementById('movieModal').classList.remove('hidden');
+  document.getElementById('movieModal').classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('movieModal').classList.add('hidden');
+  document.getElementById('movieModal').classList.remove('flex');
+  document.body.style.overflow = '';
+}
+
+// Player
+let isPlaying = false;
+let playerInterval;
+let currentProgress = 0;
+
+function openPlayer(title, movieId = 0) {
+  const movie = movies.find(m => m.id === movieId);
+  document.getElementById('playerTitle').textContent = title;
+  document.getElementById('playerImage').src = movie ? movie.image : '';
+  document.getElementById('videoPlayer').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  currentProgress = 0;
+  updateProgress();
+}
+
+function closePlayer() {
+  document.getElementById('videoPlayer').classList.add('hidden');
+  document.body.style.overflow = '';
+  isPlaying = false;
+  clearInterval(playerInterval);
+  updatePlayIcons();
+}
+
+function togglePlay() {
+  isPlaying = !isPlaying;
+  updatePlayIcons();
+  if (isPlaying) {
+    playerInterval = setInterval(() => {
+      currentProgress += 0.1;
+      if (currentProgress >= 100) {
+        currentProgress = 0;
+        isPlaying = false;
+        updatePlayIcons();
+        clearInterval(playerInterval);
+      }
+      updateProgress();
+    }, 100);
+  } else {
+    clearInterval(playerInterval);
+  }
+}
+
+function updatePlayIcons() {
+  document.getElementById('playIcon').classList.toggle('hidden', isPlaying);
+  document.getElementById('pauseIcon').classList.toggle('hidden', !isPlaying);
+  document.getElementById('controlPlayIcon').classList.toggle('hidden', isPlaying);
+  document.getElementById('controlPauseIcon').classList.toggle('hidden', !isPlaying);
+}
+
+function updateProgress() {
+  document.getElementById('progressFill').style.width = currentProgress + '%';
+  document.getElementById('progressThumb').style.left = currentProgress + '%';
+  
+  const totalSeconds = 9240; // 2:34:00
+  const currentSeconds = Math.floor((currentProgress / 100) * totalSeconds);
+  const hours = Math.floor(currentSeconds / 3600);
+  const minutes = Math.floor((currentSeconds % 3600) / 60);
+  const seconds = currentSeconds % 60;
+  document.getElementById('currentTime').textContent = 
+    `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function seekVideo(event) {
+  const rect = event.currentTarget.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  currentProgress = (x / rect.width) * 100;
+  updateProgress();
+}
+
+// Search
+function handleSearch(query) {
+  if (query.length < 2) {
+    document.getElementById('searchModal').classList.add('hidden');
+    return;
+  }
+  
+  const results = movies.filter(m => 
+    m.title.toLowerCase().includes(query.toLowerCase()) ||
+    m.genre.some(g => g.toLowerCase().includes(query.toLowerCase())) ||
+    m.director.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  const resultsContainer = document.getElementById('searchResults');
+  const noResults = document.getElementById('noResults');
+  
+  if (results.length === 0) {
+    resultsContainer.innerHTML = '';
+    noResults.classList.remove('hidden');
+  } else {
+    noResults.classList.add('hidden');
+    resultsContainer.innerHTML = results.map(m => `
+      <div class="cursor-pointer group" onclick="openModal(${m.id}); closeSearch();">
+        <div class="aspect-[2/3] rounded-xl overflow-hidden relative">
+          <img src="${m.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <h4 class="font-bold text-sm">${m.title}</h4>
+            <p class="text-xs text-gray-300">${m.year}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  document.getElementById('searchModal').classList.remove('hidden');
+}
+
+function closeSearch() {
+  document.getElementById('searchModal').classList.add('hidden');
+  document.getElementById('searchInput').value = '';
+}
+
+// Category pills
+document.querySelectorAll('.category-pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  const navbar = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    navbar.classList.add('bg-[#0a0a0f]/95', 'nav-blur', 'shadow-lg');
+  } else {
+    navbar.classList.remove('bg-[#0a0a0f]/95', 'nav-blur', 'shadow-lg');
+  }
+});
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Close modal on backdrop click
+document.getElementById('movieModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('movieModal')) closeModal();
+});
+
+document.getElementById('searchModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('searchModal')) closeSearch();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closePlayer();
+    closeSearch();
+  }
+  if (e.key === ' ' && !document.getElementById('videoPlayer').classList.contains('hidden')) {
+    e.preventDefault();
+    togglePlay();
+  }
+});
+
+// Initialize
+populateCarousels();
+</script>
+</body>
+</html>
+

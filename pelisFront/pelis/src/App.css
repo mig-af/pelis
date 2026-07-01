@@ -1,0 +1,57 @@
+
+  * { font-family: 'Inter', sans-serif; }
+  body { background: #0a0a0f; color: #fff; overflow-x: hidden; }
+  
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  .movie-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .movie-card:hover { transform: scale(1.08) translateY(-8px); z-index: 10; }
+  .movie-card:hover .movie-info { opacity: 1; transform: translateY(0); }
+  .movie-info { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+  
+  .hero-gradient { background: linear-gradient(180deg, rgba(10,10,15,0) 0%, rgba(10,10,15,0.6) 50%, #0a0a0f 100%); }
+  .hero-gradient-left { background: linear-gradient(90deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.5) 50%, transparent 100%); }
+  
+  .nav-blur { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+  
+  .btn-primary { background: linear-gradient(135deg, #e50914 0%, #b20710 100%); transition: all 0.3s; }
+  .btn-primary:hover { background: linear-gradient(135deg, #ff0a16 0%, #d40812 100%); transform: scale(1.05); }
+  
+  .btn-secondary { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); transition: all 0.3s; }
+  .btn-secondary:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+  
+  .carousel-btn { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); transition: all 0.3s; }
+  .carousel-btn:hover { background: rgba(229,9,20,0.9); }
+  
+  .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+  
+  .play-btn { animation: pulse-ring 2s infinite; }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(229,9,20,0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(229,9,20,0); }
+    100% { box-shadow: 0 0 0 0 rgba(229,9,20,0); }
+  }
+  
+  .fade-in { animation: fadeIn 0.6s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .slide-in { animation: slideIn 0.4s ease-out; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+  
+  .shimmer { background: linear-gradient(90deg, #1a1a24 25%, #2a2a3a 50%, #1a1a24 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  
+  .rating-star { color: #fbbf24; }
+  
+  .progress-bar { background: linear-gradient(90deg, #e50914 0%, #ff4d5a 100%); }
+  
+  .category-pill { transition: all 0.3s; }
+  .category-pill:hover, .category-pill.active { background: #e50914; color: white; }
+  
+  .search-input:focus { box-shadow: 0 0 0 3px rgba(229,9,20,0.3); }
+  
+  .player-controls { background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%); }
+  
+  .volume-slider::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: #e50914; border-radius: 50%; cursor: pointer; }
+  .volume-slider::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
