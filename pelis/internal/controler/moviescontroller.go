@@ -40,12 +40,16 @@ func (m *MovieController) GetById(c *gin.Context){
 	}
 	RespMovie := &movie.MovieResponse{
 		Id: Movie.GetId(),
-		Name: Movie.GetName(),
+		Title: Movie.GetTitle(),
+		Year: Movie.GetYear(),
 		MovieUrl: Movie.GetMovieUrl(),
-		PosterUrl: Movie.GetPosterUrl(),
+		Image: Movie.GetImage(),
 		Duration: Movie.GetDuration(),
-		Sinopsis: Movie.GetSinopsis(),
+		Description: Movie.GetDescription(),
+		Director: Movie.GetDirector(),
+		Cast: Movie.GetCast(),
 		Genre: Movie.GetGenre(),
+		Rating: Movie.GetRating(),
 	}
 	c.IndentedJSON(http.StatusOK, &RespMovie)
 }
@@ -68,8 +72,17 @@ func (m *MovieController) GetAllMovies(c *gin.Context){
 	var MoviesResponse []*movie.MovieResponse
 	for _, v := range movies{
 		MoviesResponse = append(MoviesResponse, &movie.MovieResponse{
-			Id: v.ID,Name: v.Name, MovieUrl: v.MovieUrl, PosterUrl: v.PosterUrl,
-			Duration: v.Duration, Sinopsis: v.Sinopsis, Genre: v.Genre,
+			Id: v.GetId(),
+			Title: v.GetTitle(),
+			Year: v.GetYear(),
+			MovieUrl: v.GetMovieUrl(),
+			Image: v.GetImage(),
+			Duration: v.GetDuration(),
+			Description: v.GetDescription(),
+			Director: v.GetDirector(),
+			Cast: v.GetCast(),
+			Genre: v.GetGenre(),
+			Rating: v.GetRating(),
 			
 		})
 	}
@@ -91,16 +104,38 @@ func (m *MovieController)InsertMovie(c *gin.Context){
 		return
 	}
 	
-	Movie := &model.Movie{Name: MoviePost.Name, MovieUrl: MoviePost.MovieUrl, UserID: userID.(uint)}
+	Movie := &model.Movie{
+		Title: MoviePost.Title,
+		Year: MoviePost.Year, 
+		MovieUrl: MoviePost.MovieUrl, 
+		Image: MoviePost.Image,
+		Duration: MoviePost.Duration,
+		Description: MoviePost.Description,
+		Director: MoviePost.Director,
+		Cast: MoviePost.Cast,
+		Genre: MoviePost.Genre,
+		Rating: MoviePost.Rating,
+		UserID: userID.(uint),
+	}
+	//SAVE
 	err := m.Repo.Save(Movie)
+
 	if (err != nil){
 		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
 		return
 	}
 	moviResponse := &movie.MovieResponse{
-		Id: Movie.ID, Name: Movie.Name, MovieUrl: Movie.MovieUrl,
-		PosterUrl: Movie.PosterUrl, Duration: Movie.Duration, Sinopsis: Movie.Duration,
-		Genre: Movie.Genre,
+		Id: Movie.GetId(),
+		Title: Movie.GetTitle(),
+		Year: Movie.GetYear(),
+		MovieUrl: Movie.GetMovieUrl(),
+		Image: Movie.GetImage(),
+		Duration: Movie.GetDuration(),
+		Description: Movie.GetDescription(),
+		Director: Movie.GetDirector(),
+		Cast: Movie.GetCast(),
+		Genre: Movie.GetGenre(),
+		Rating: Movie.GetRating(),
 		}
 	c.IndentedJSON(http.StatusCreated, &moviResponse)
 	
@@ -161,12 +196,16 @@ func (m *MovieController) UpdateMovie(c *gin.Context){
 	RespMovie := &movie.MovieResponse{
 		
 		Id: Movie.GetId(),
-		Name: Movie.GetName(),
+		Title: Movie.GetTitle(),
+		Year: Movie.GetYear(),
 		MovieUrl: Movie.GetMovieUrl(),
-		PosterUrl: Movie.GetPosterUrl(),
+		Image: Movie.GetImage(),
 		Duration: Movie.GetDuration(),
-		Sinopsis: Movie.GetSinopsis(),
+		Description: Movie.GetDescription(),
+		Director: Movie.GetDirector(),
+		Cast: Movie.GetCast(),
 		Genre: Movie.GetGenre(),
+		Rating: Movie.GetRating(),
 		
 	}
 
