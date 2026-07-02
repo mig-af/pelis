@@ -34,7 +34,7 @@ export function MovieModal({ movie, onClose, onOpenPlayer }) {
           <img src={movie.image} alt={movie.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#14141f] via-[#14141f]/50 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-8">
-            <h2 className="text-4xl md:text-5xl font-bold mb-3">{movie.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-3 text-white">{movie.title}</h2>
             <div className="flex items-center gap-3 flex-wrap">
               <span className="text-sm">{movie.year}</span>
               <span className="text-gray-400">•</span>

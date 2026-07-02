@@ -1,6 +1,7 @@
 import { Index } from "./pages/Index";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Movie } from "./pages/Movies";
+
+import { GenrePage } from "./pages/GenrePage";
 
 
 export default function App() {
@@ -9,7 +10,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/genre/:genre" element={<Movie />} />
+        <Route path="/genre/:genre" element={<GenrePage />} />
       </Routes>
     </BrowserRouter>
   

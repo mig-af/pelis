@@ -11,6 +11,7 @@ export const movies = [
     cast: "Carlos Méndez, Ana Torres, Diego Vega",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/14e2f1af5-bb46-4a5e-b018-01290c458038.png",
     category: ["trending", "scifi"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 1,
@@ -24,6 +25,7 @@ export const movies = [
     cast: "Roberto Silva, Laura Jiménez, Pablo Ruiz",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/18834899f-e092-4e55-8757-372cbf14c689.png",
     category: ["trending", "action"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 2,
@@ -37,6 +39,7 @@ export const movies = [
     cast: "Elena Castro, Miguel Ángel, Sofía Ramírez",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1a2d788cf-2e5f-4d40-9e52-a4a46ce06c1b.png",
     category: ["trending", "scifi"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 3,
@@ -50,6 +53,7 @@ export const movies = [
     cast: "Javier Pérez, Carmen Díaz, Luis Herrera",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/10a57602b-3a0d-4c0a-bc00-2c55fde2327a.png",
     category: ["comedy", "trending"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 4,
@@ -63,6 +67,7 @@ export const movies = [
     cast: "Patricia Mora, Andrés Gómez, Lucía Fernández",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/12aada0be-0f9b-4360-b2be-337b7a06940e.png",
     category: ["trending"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 5,
@@ -76,6 +81,7 @@ export const movies = [
     cast: "Voces: Pedro Sánchez, María López, Juan Torres",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1637d3ab0-3a42-42f1-ba4d-b539bae1534f.png",
     category: ["trending", "comedy"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 6,
@@ -89,6 +95,7 @@ export const movies = [
     cast: "Antonio Banderas, Penélope Cruz, Javier Bardem",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1575a92b5-fc2c-475a-870c-b316cd042262.png",
     category: ["drama", "trending"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 7,
@@ -102,6 +109,7 @@ export const movies = [
     cast: "Hugo Silva, Blanca Suárez, Mario Casas",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1b207e4d0-7760-4957-b83d-b04faadaa2fb.png",
     category: ["action", "trending"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 8,
@@ -115,6 +123,7 @@ export const movies = [
     cast: "Óscar Martínez, Ricardo Darín, Dolores Fonzi",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1a21ea808-849e-46bd-aa14-ccd8a51e76cd.png",
     category: ["drama"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 9,
@@ -128,6 +137,7 @@ export const movies = [
     cast: "Marta Hazas, Yon González, Amaia Salamanca",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/175df71a9-3354-439f-88fc-1a93690401b0.png",
     category: ["comedy"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 10,
@@ -141,6 +151,7 @@ export const movies = [
     cast: "Jesse Plemons, Rooney Mara, Daniel Craig",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1ec1a6a46-8925-42d8-a28d-d3f092a1d5fb.png",
     category: ["scifi", "trending"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
   {
     id: 11,
@@ -154,5 +165,6 @@ export const movies = [
     cast: "Sally Hawkins, Doug Jones, Michael Shannon",
     image: "https://image.qwenlm.ai/public_source/93a62546-d7ea-4881-9a51-5c7b95380c27/1b69e0782-075f-48f1-8fab-b32461883016.png",
     category: ["drama", "trending"],
+    movie_url:"https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM"
   },
 ];

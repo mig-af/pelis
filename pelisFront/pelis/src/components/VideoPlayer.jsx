@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export function VideoPlayer({ title, image, onClose }) {
+export function VideoPlayer({ title, image, movieUrl, onClose }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef(null);
@@ -55,33 +55,39 @@ export function VideoPlayer({ title, image, onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black">
-      <div className="relative w-full h-full flex items-center justify-center">
-        <img src={image} className="absolute inset-0 w-full h-full object-cover opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
 
-        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-10">
-          <button onClick={onClose} className="flex items-center gap-2 hover:text-red-500 transition">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="font-medium">Volver</span>
-          </button>
-          <h3 className="font-bold text-lg">{title}</h3>
+    <div className="fixed inset-0 z-[200] bg-black">
+
+    
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* <img src={image} className="absolute inset-0 w-full h-full object-cover opacity-50" />
+         */}
+        
+        <div className="absolute bg-gradient-to-t from-black via-black/50 to-black/30" />
+
+          <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-10">
+              <button onClick={onClose} className="flex items-center gap-2 hover:text-red-500 transition">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="font-medium text-white">Volver</span>
+              </button>
+              {/* <h3 className="font-bold text-lg">{title}</h3> */}
           <div />
         </div>
-
+        <iframe className="w-full h-full" src="https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      
+        
+{/* 
         <button
           onClick={togglePlay}
           className="relative z-10 w-24 h-24 rounded-full bg-red-600 flex items-center justify-center hover:scale-110 transition"
           style={{ boxShadow: "0 0 0 0 rgba(229,9,20,0.7)", animation: "pulse-ring 2s infinite" }}
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
-        </button>
+        </button> */}
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 z-10"
-          style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%)" }}
-        >
+        {/* <div className="absolute bottom-0 left-0 right-0 p-6 z-10" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%)" }}>
           <div className="mb-4">
             <div
               className="relative w-full h-1 bg-white/30 rounded-full cursor-pointer"
@@ -121,7 +127,7 @@ export function VideoPlayer({ title, image, onClose }) {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

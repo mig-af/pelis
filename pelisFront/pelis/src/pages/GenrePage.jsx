@@ -8,7 +8,7 @@ import { useState } from "react";
 import { VideoPlayer } from "../components/VideoPlayer";
 
 
-export function Movie(){
+export function GenrePage(){
     const { genre } = useParams();
     const movies = GetByGenre(genre);
 
@@ -22,15 +22,11 @@ export function Movie(){
     
     const openPlayer = (title, id) => {
     const movie = movies.find((m) => m.id === id);
-        setPlayer({ title, image: movie?.image ?? "" });
+        setPlayer({ title, image: movie?.image ?? "", movie_url: movie?.movie_url ?? ""});
       };
     const closePlayer = () => setPlayer(null);
-      
-   
     
-
-    
-    console.log("jijojo", movies);
+    //console.log("jijo", movies);
     
     return (
 
@@ -62,7 +58,7 @@ export function Movie(){
         
         {player && (
                 
-                <VideoPlayer title={player.title} image={player.image} onClose={closePlayer} />
+                <VideoPlayer title={player.title} movieUrl={player.movie_url} image={player.image} onClose={closePlayer} />
               )}
         </>
         
