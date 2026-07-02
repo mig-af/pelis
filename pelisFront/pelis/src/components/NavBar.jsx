@@ -11,7 +11,7 @@ export function NavBar({ onSearch }) {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 md:px-12 py-4 ${
+      className={`fixed relative top-0 left-0 right-0 z-50 transition-all duration-300 px-6 md:px-12 py-4 ${
         scrolled ? "bg-[#0a0a0f]/95 backdrop-blur-xl shadow-lg" : ""
       }`}
     >

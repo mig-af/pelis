@@ -1,7 +1,8 @@
 import { useRef } from "react";
 import { MovieCard } from "./MovieCard";
+import { Link } from "react-router-dom";
 
-export function MovieSection({ title, subtitle, movies, onOpenModal, onOpenPlayer }) {
+export function MovieSection({ title, genre, subtitle, movies, onOpenModal, onOpenPlayer }) {
   const ref = useRef(null);
 
   const scroll = (dir) => {
@@ -18,12 +19,12 @@ export function MovieSection({ title, subtitle, movies, onOpenModal, onOpenPlaye
           </h2>
           {subtitle && <p className="text-gray-400 text-sm mt-1 ml-4">{subtitle}</p>}
         </div>
-        <button className="text-sm text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+        <Link to={`/genre/${genre}`} className="text-sm text-gray-400 hover:text-red-500 transition flex items-center gap-1">
           Ver todo
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
           </svg>
-        </button>
+        </Link>
       </div>
       <div className="relative group">
         <button
