@@ -12,6 +12,7 @@ export function GenrePage(){
     const { genre } = useParams();
     const movies = GetByGenre(genre);
 
+    
 
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [player, setPlayer] = useState(null); // { title, image }
