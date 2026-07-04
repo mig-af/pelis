@@ -74,4 +74,15 @@ func (m *MovieRepository) Update(id uint, newMovie *model.Movie) error{
 
 }
 
+func (m *MovieRepository) GetByGenre(genre string)(*[]model.Movie, error){
+	var movies []model.Movie
+
+	resp := m.Db.Where("genre = ?", genre).Find(&movies)
+	if(resp.Error != nil){
+		return nil, errors.New("Genre not found")
+	}
+	
+	return &movies, nil
+
+}
 

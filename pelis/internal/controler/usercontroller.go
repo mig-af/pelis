@@ -23,21 +23,21 @@ func (u *UserController)Register(c *gin.Context){
 	var userRegister user.UserRegister
 	resp := c.BindJSON(&userRegister)
 	if (resp != nil){
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"Msg":resp.Error()})
+		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: "name, email, password required"})
 		return
 	}
 
 	//No hay validaciones, anadir si es posible
 	pass, erro := security.HashPass(userRegister.Password)
 	if(erro != nil){
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"Msg":erro.Error()})
+		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: erro.Error()})
 		return
 	}
 
 	newUser := &model.User{Name: userRegister.Name, Email: userRegister.Email, Password: pass}
 	err := u.Repo.Save(newUser)
 	if( err != nil){
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"Msg":err.Error()})
+		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: err.Error()})
 		return
 	}
 	c.IndentedJSON(http.StatusCreated, gin.H{"Msg":"ok"})

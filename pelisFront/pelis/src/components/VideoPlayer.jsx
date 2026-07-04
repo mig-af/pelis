@@ -75,7 +75,7 @@ export function VideoPlayer({ title, image, movieUrl, onClose }) {
               {/* <h3 className="font-bold text-lg">{title}</h3> */}
           <div />
         </div>
-        <iframe className="w-full h-full" src="https://www.youtube.com/embed/djV11Xbc914?si=qr9S54NTacJxVbAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe className="w-full h-full" src={movieUrl} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowfullscreen></iframe>
       
         
 {/* 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"pelis/internal/domain/movie"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -45,6 +46,23 @@ func (m *Movie)VerifyBlank(neww string, old string)string{
 	}
 	return neww
 }
+
+func (m *Movie)FromPost(moviePost *movie.MoviePost, userId uint)*Movie{
+	
+	m.Title = moviePost.Title
+	m.Year = moviePost.Year
+	m.MovieUrl = moviePost.MovieUrl
+	m.Image = moviePost.Image
+	m.Duration = moviePost.Duration
+	m.Description = moviePost.Description
+	m.Director = moviePost.Director
+	m.Cast = moviePost.Cast
+	m.Genre = strings.ToLower(strings.TrimSpace(moviePost.Genre))
+	m.Rating = moviePost.Rating
+	m.UserID = userId
+	return m
+}
+
 
 func (m *Movie) GetId()uint{
 	return m.ID

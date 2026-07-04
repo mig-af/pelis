@@ -8,6 +8,7 @@ import (
 	"pelis/internal/repository"
 	"pelis/internal/security"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -90,52 +91,85 @@ func (m *MovieController) GetAllMovies(c *gin.Context){
 	c.IndentedJSON(http.StatusOK, &MoviesResponse)
 }
 
+//get by genre
+
+func (m *MovieController) GetByGenre(c *gin.Context){
+	var movieResponseList []movie.MovieResponse
+	param := c.Params
+	genre, ok := param.Get("genre")
+	if (!ok){
+		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: "Error params"})
+		return
+	}
+	
+	MovieList, err := m.Repo.GetByGenre(strings.ToLower(genre))
+	if(err != nil){
+		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
+		return
+	}
+	if(len(*MovieList) == 0){
+		c.IndentedJSON(http.StatusOK, &MovieList)
+		return
+	}
+	for _, v := range *MovieList{
+		movieResponseList = append(movieResponseList, movie.MovieResponse{
+			Id: v.GetId(),
+			Title: v.GetTitle(),
+			Year: v.GetYear(),
+			MovieUrl: v.GetMovieUrl(),
+			Image: v.GetImage(),
+			Duration: v.GetDuration(),
+			Description: v.GetDescription(),
+			Director: v.GetDirector(),
+			Cast: v.GetCast(),
+			Genre: v.GetGenre(),
+			Rating: v.GetRating(),
+
+		})
+	}
+
+	c.IndentedJSON(http.StatusOK, &movieResponseList)
+}
+
+
+
+
+
 
 //------------------POST INSERT MOVIE
 func (m *MovieController)InsertMovie(c *gin.Context){
 	userID, _ := c.Get("UserId")
-	var MoviePost movie.MoviePost
+	var moviePost movie.MoviePost
 
 
-	data := c.BindJSON(&MoviePost)
+	data := c.BindJSON(&moviePost)
 	if(data != nil){
 		fmt.Println(data)
 		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: data.Error()})
 		return
 	}
 	
-	Movie := &model.Movie{
-		Title: MoviePost.Title,
-		Year: MoviePost.Year, 
-		MovieUrl: MoviePost.MovieUrl, 
-		Image: MoviePost.Image,
-		Duration: MoviePost.Duration,
-		Description: MoviePost.Description,
-		Director: MoviePost.Director,
-		Cast: MoviePost.Cast,
-		Genre: MoviePost.Genre,
-		Rating: MoviePost.Rating,
-		UserID: userID.(uint),
-	}
+	movieObj := &model.Movie{}
+	movieObj.FromPost(&moviePost, userID.(uint))
 	//SAVE
-	err := m.Repo.Save(Movie)
+	err := m.Repo.Save(movieObj)
 
 	if (err != nil){
 		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})
 		return
 	}
 	moviResponse := &movie.MovieResponse{
-		Id: Movie.GetId(),
-		Title: Movie.GetTitle(),
-		Year: Movie.GetYear(),
-		MovieUrl: Movie.GetMovieUrl(),
-		Image: Movie.GetImage(),
-		Duration: Movie.GetDuration(),
-		Description: Movie.GetDescription(),
-		Director: Movie.GetDirector(),
-		Cast: Movie.GetCast(),
-		Genre: Movie.GetGenre(),
-		Rating: Movie.GetRating(),
+		Id: movieObj.GetId(),
+		Title: movieObj.GetTitle(),
+		Year: movieObj.GetYear(),
+		MovieUrl: movieObj.GetMovieUrl(),
+		Image: movieObj.GetImage(),
+		Duration: movieObj.GetDuration(),
+		Description: movieObj.GetDescription(),
+		Director: movieObj.GetDirector(),
+		Cast: movieObj.GetCast(),
+		Genre: movieObj.GetGenre(),
+		Rating: movieObj.GetRating(),
 		}
 	c.IndentedJSON(http.StatusCreated, &moviResponse)
 	

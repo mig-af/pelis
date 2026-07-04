@@ -70,15 +70,22 @@ export function MovieModal({ movie, onClose, onOpenPlayer }) {
             <div className="md:col-span-2">
               <p className="text-gray-300 leading-relaxed mb-4">{movie.description}</p>
               <div className="flex gap-2 flex-wrap">
-                {movie.genre.map((g) => (
+                {/* {movie.genre.map((g) => (
                   <span key={g} className="bg-white/10 px-3 py-1 rounded-full text-xs">{g}</span>
-                ))}
+                  Si la pelicula.genero viene con un array [comedia, terror, suspenso]
+                ))} */}
+                  <span key={movie.genre} className="bg-white/10 px-3 py-1 rounded-full text-xs">{movie.genre}</span>
+
               </div>
             </div>
             <div className="space-y-3 text-sm">
               <div><span className="text-gray-500">Director: </span><span className="text-gray-200">{movie.director}</span></div>
               <div><span className="text-gray-500">Reparto: </span><span className="text-gray-200">{movie.cast}</span></div>
-              <div><span className="text-gray-500">Género: </span><span className="text-gray-200">{movie.genre.join(", ")}</span></div>
+              {/* <div><span className="text-gray-500">Género: </span><span className="text-gray-200">{movie.genre.join(", ")}</span></div>
+              Si la pelicula.genero viene con un array [comedia, terror, suspenso]
+            */}
+              <div><span className="text-gray-500">Género: </span><span className="text-gray-200">{movie.genre}</span></div>
+
             </div>
           </div>
         </div>

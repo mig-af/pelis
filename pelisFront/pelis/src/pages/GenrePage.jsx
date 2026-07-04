@@ -1,17 +1,27 @@
 import { useParams, Link } from "react-router-dom";
 import { NavBar } from "../components/NavBar";
 import { MovieSection } from "../components/MovieSection";
-import { GetByGenre } from "../data/Service";
+import { GetByGennre, GetByGenre } from "../data/Service";
 import { MovieModal } from "../components/MovieModal";
 import { MovieCard } from "../components/MovieCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VideoPlayer } from "../components/VideoPlayer";
+
 
 
 export function GenrePage(){
     const { genre } = useParams();
-    const movies = GetByGenre(genre);
+    //const movies =  GetByGennre(genre);
 
+    const [movies, setMovies] = useState(null);
+    useEffect(()=>{
+        async function fetchData(){
+            const resp = await GetByGennre(genre);
+            setMovies(resp.data)
+            console.log(resp.data);
+        }
+        fetchData();
+    },[])
     
 
     const [selectedMovie, setSelectedMovie] = useState(null);
@@ -43,11 +53,10 @@ export function GenrePage(){
                 
                 <div style={{display:"flex", gap:"1rem", flexWrap:"wrap"}}>
                     
-                    {
-                        movies.map((m, index) => (
-                            <MovieCard key={m.id} movie={m} onOpenModal={openModal} onOpenPlayer={openPlayer} />
-                        ))
-                    }
+                    {movies ? movies.map((m, index) => (<MovieCard key={m.id} movie={m} onOpenModal={openModal} onOpenPlayer={openPlayer} />)): "asd"}
+                    
+                    {/* {movies ? "jijo si existe movie": "no hay movie"} */}
+
                 </div>
                
             </div>   
