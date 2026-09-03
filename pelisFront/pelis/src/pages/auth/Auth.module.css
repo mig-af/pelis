@@ -1,0 +1,55 @@
+  section {
+    font-family: 'Inter', sans-serif;
+  }
+  .gradientBg {
+    
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .card {
+    animation: fadeInUp 0.6s ease-out;
+    box-shadow: 1px 1px 20px;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .input-field:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+  }
+  .btnPrimary {
+    background: linear-gradient(135deg, #18181a 0%, #413e44 100%);
+    transition: all 0.3s ease;
+    color: white;
+  }
+  .btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  }
+  .btnPrimary:active {
+    transform: translateY(0);
+  }
+  .shake {
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .loader {
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
