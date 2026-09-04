@@ -38,8 +38,10 @@ func (r *refreshTokenRepository) Save(refreshTokenModel *model.RefreshToken)erro
 	}
 	return nil
 }
-func (r *refreshTokenRepository)UpdateRefresToken(id uint, refreshTokenModel *model.RefreshToken)error{
-	resp := r.Db.Where("id = ?", id).Updates(&refreshTokenModel)
+
+
+func (r *refreshTokenRepository)UpdateRefresToken(hashRefreshToken string, refreshTokenModel *model.RefreshToken)error{
+	resp := r.Db.Where("token = ?", hashRefreshToken).Updates(&refreshTokenModel)
 	if(resp.Error != nil){
 		return resp.Error
 	}

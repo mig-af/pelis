@@ -27,11 +27,11 @@ func Init(){
 
 	//--services---
 	serviceRefreshToken := services.NewRefreshTokenService(repoRefreshToken)
-	
+	serviceUser := services.NewUserService(repoUser, serviceRefreshToken)
 
 	//--controllers---
 	ControllerMovie := controller.NewMovieController(repoMovie)
-	controllerUser := controller.NewUserController(repoUser)
+	controllerUser := controller.NewUserController(serviceUser)
 	controllerRefreshToken := controller.NewRefreshTokenController(serviceRefreshToken)
 
 	

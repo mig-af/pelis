@@ -1,6 +1,7 @@
 #!/bin/bash
 
 
+
 export JWT_SECRET
 export URL_DB
 

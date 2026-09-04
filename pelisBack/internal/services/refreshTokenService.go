@@ -19,13 +19,23 @@ func NewRefreshTokenService(repo interfaces.RefreshTokenRepositoryInterface)inte
 }
 
 
-func (r *refreshTokenService) RefreshToken(token string){
+func (r *refreshTokenService) RefreshToken(userId uint, token string)error{
+
+
+
+	return nil
 }
 
-func (r *refreshTokenService) LoginRefreshToken(userId uint)(string, error){
+
+
+
+
+
+
+func (r *refreshTokenService) SaveRefreshToken(userId uint, refreshToken string)(string, error){
 	var refreshTokenModel model.RefreshToken
 
-	refreshToken := security.GenerateRefreshToken()
+	//--hashear refreshToken---
 	hashToken := security.HashToken(refreshToken)
 
 	refreshTokenModel = model.RefreshToken{

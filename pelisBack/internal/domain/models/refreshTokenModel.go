@@ -7,9 +7,6 @@ import (
 
 
 
-
-
-
 type RefreshToken struct{
 	gorm.Model
 	UserId uint 
