@@ -30,7 +30,7 @@ func NewMovieController(repo interfaces.MovieRepositoryInterface)*MovieControlle
 	return &MovieController{Repo: repo}
 }
 
-//GET BY ID
+//GET BY ID ---- "/movies/:id"
 func (m *MovieController) GetById(c *gin.Context){
 	idMovie := c.Param("id")
 	idd, _ := strconv.Atoi(idMovie)
@@ -62,7 +62,7 @@ func (m *MovieController) GetById(c *gin.Context){
 
 
 
-//--------------------GET ALL ITEMS
+//--------------------GET ALL ITEMS---"/movies"
 func (m *MovieController) GetAllMovies(c *gin.Context){
 	var MoviesResponse []*movie.MovieResponse
 	userId, ok := c.Get("UserId")
@@ -102,7 +102,7 @@ func (m *MovieController) GetAllMovies(c *gin.Context){
 	c.IndentedJSON(http.StatusOK, &MoviesResponse)
 }
 
-//get by genre
+//get by genre --- "/movies/genre/:genre"
 
 func (m *MovieController) GetByGenre(c *gin.Context){
 	var movieResponseList []movie.MovieResponse
@@ -147,7 +147,7 @@ func (m *MovieController) GetByGenre(c *gin.Context){
 
 
 
-//------------------POST INSERT MOVIE
+//------------------POST INSERT MOVIE--"/movies"
 func (m *MovieController)InsertMovie(c *gin.Context){
 	userID, _ := c.Get("UserId")
 	var moviePost movie.MoviePost
@@ -188,7 +188,7 @@ func (m *MovieController)InsertMovie(c *gin.Context){
 
 
 
-// DELETE 
+// DELETE ---"/movies/:id"
 
 func (m *MovieController)DeleteById(c *gin.Context){
 	id := c.Param("id")
@@ -208,7 +208,7 @@ func (m *MovieController)DeleteById(c *gin.Context){
 
 }
 
-//-------PUT----
+//-------PUT----"/movies"
 func (m *MovieController) UpdateMovie(c *gin.Context){
 	var movieUpdate *movie.MovieUpdate
 

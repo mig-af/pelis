@@ -33,7 +33,7 @@ func (u *UserController)Register(c *gin.Context){
 		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: "name, email, password required"})
 		return
 	}
-	//---servicio registro
+	//---servicio registro "/register"
 	erro := u.Service.Register(userRegister)
 	if(erro != nil){
 		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: erro.Error()})
@@ -45,6 +45,8 @@ func (u *UserController)Register(c *gin.Context){
 
 }
 
+
+//  "/login"
 func (u *UserController) Login(c *gin.Context){
 	var userLogin user.UserLogin
 	
@@ -55,7 +57,7 @@ func (u *UserController) Login(c *gin.Context){
 	}
 	
 	// --- servicio login
-	userDto, token, refreshToken, er := u.Service.Login(userLogin)
+	userResponseDto, token, refreshToken, er := u.Service.Login(userLogin)
 	if(er != nil){
 		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: er.Error()})
 		return
@@ -65,7 +67,7 @@ func (u *UserController) Login(c *gin.Context){
 	c.SetCookie(
 		"refreshToken", refreshToken, 3600, "/", "/", true, true,
 	)
-	c.IndentedJSON(http.StatusAccepted, gin.H{"btoken":token, "data": userDto})
+	c.IndentedJSON(http.StatusAccepted, gin.H{"btoken":token, "data": userResponseDto})
 
 }
 

@@ -1,7 +1,13 @@
 package controller
 
 import (
+	"fmt"
+	"net/http"
+
 	"pelis/internal/domain/interfaces"
+	"pelis/internal/security"
+
+	"github.com/gin-gonic/gin"
 )
 
 
@@ -17,6 +23,21 @@ func NewRefreshTokenController(service interfaces.RefreshTokenServiceInterface) 
 }
 
 
+
+
+
+func (r *RefreshTokenController)GetRefreshToken(c *gin.Context){
+	fmt.Println("-----------", c.Request.Method, "-----------------")
+	token, err := c.Cookie("refreshToken")
+	if(err != nil){
+		c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Unauthorized"})
+		return
+	}
+
+	//fmt.Println(token)
+	resp := r.Service.RefreshToken(token)
+	
+}
 
 
 

@@ -19,10 +19,10 @@ func NewRefreshTokenService(repo interfaces.RefreshTokenRepositoryInterface)inte
 }
 
 
-func (r *refreshTokenService) RefreshToken(userId uint, token string)error{
+func (r *refreshTokenService) RefreshToken(token string)error{
 
 
-
+	
 	return nil
 }
 
