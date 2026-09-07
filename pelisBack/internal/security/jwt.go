@@ -42,7 +42,7 @@ func ValidateJWT(token string)(*CustomClaim, error){
 	resp, err := jwt.ParseWithClaims(token, &CustomClaim{}, func(t *jwt.Token) (any, error) {
 		return key_jwt, nil
 	})
-	if( err != nil){
+	if( err != nil ){
 		return nil, err
 	}
 	claims, ok := resp.Claims.(*CustomClaim)

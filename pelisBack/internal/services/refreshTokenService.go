@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"pelis/internal/domain/interfaces"
 	model "pelis/internal/domain/models"
 	"pelis/internal/security"
@@ -19,11 +20,25 @@ func NewRefreshTokenService(repo interfaces.RefreshTokenRepositoryInterface)inte
 }
 
 
-func (r *refreshTokenService) RefreshToken(token string)error{
+func (r *refreshTokenService) RefreshToken(token string)(string, string, error){
 
+	hash := security.HashRefreshToken(token)
 
+	resp, err := r.Repo.GetRefreshToken(hash)
+	if( err != nil ){
+		return "", "", err
+	}
 	
-	return nil
+	if( resp.Revoked ){
+		return  "", "", errors.New("refresh token revoked")
+	}
+	if( time.Now().Hour() > resp.ExpiresAt.Hour() ){
+		return "", "", errors.New("Refresh token expired, please login")
+	}
+
+
+
+	return "", "", nil
 }
 
 
@@ -36,13 +51,13 @@ func (r *refreshTokenService) SaveRefreshToken(userId uint, refreshToken string)
 	var refreshTokenModel model.RefreshToken
 
 	//--hashear refreshToken---
-	hashToken := security.HashToken(refreshToken)
+	hashToken := security.HashRefreshToken(refreshToken)
 
 	refreshTokenModel = model.RefreshToken{
 		UserId: userId,
 		Token: hashToken,
 		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(15 * time.Minute),
+		ExpiresAt: time.Now().Add(168 * time.Hour),
 
 	}
 
@@ -52,7 +67,6 @@ func (r *refreshTokenService) SaveRefreshToken(userId uint, refreshToken string)
 	}
 	return refreshToken, nil
 }
-
 
 
 

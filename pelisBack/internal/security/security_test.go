@@ -32,8 +32,8 @@ func TestHashToken(t *testing.T){
 	for _, v := range cases{
 		t.Run(v.Name, func(t *testing.T) {
 
-			resp1 := HashToken(v.Param1)
-			resp2 := HashToken(v.Param2)
+			resp1 := HashRefreshToken(v.Param1)
+			resp2 := HashRefreshToken(v.Param2)
 			similar := resp1 == resp2
 			t.Log(resp1, resp2)
 			if(similar != v.IsSimilar){

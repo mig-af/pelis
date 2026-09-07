@@ -31,12 +31,16 @@ func (r *RefreshTokenController)GetRefreshToken(c *gin.Context){
 	token, err := c.Cookie("refreshToken")
 	if(err != nil){
 		c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Unauthorized"})
-		return
+		return  
 	}
 
 	//fmt.Println(token)
-	resp := r.Service.RefreshToken(token)
-	
+	jwt, refreshToken, erro := r.Service.RefreshToken(token)
+	if(erro != nil){
+
+		return
+	}
+	fmt.Println(jwt, refreshToken)
 }
 
 
