@@ -37,10 +37,15 @@ func (r *RefreshTokenController)GetRefreshToken(c *gin.Context){
 	//fmt.Println(token)
 	jwt, refreshToken, erro := r.Service.RefreshToken(token)
 	if(erro != nil){
-
+		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: erro.Error()})
 		return
 	}
 	fmt.Println(jwt, refreshToken)
+	c.SetCookie(
+		"refreshToken", refreshToken, 3600, "/", "/", true, true,
+	)
+	c.IndentedJSON(http.StatusAccepted, gin.H{"btoken":jwt})
+
 }
 
 

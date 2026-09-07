@@ -28,7 +28,6 @@ func (r *refreshTokenService) RefreshToken(token string)(string, string, error){
 	if( err != nil ){
 		return "", "", err
 	}
-	
 	if( resp.Revoked ){
 		return  "", "", errors.New("refresh token revoked")
 	}
@@ -36,9 +35,28 @@ func (r *refreshTokenService) RefreshToken(token string)(string, string, error){
 		return "", "", errors.New("Refresh token expired, please login")
 	}
 
+	//----generate jwt----
+	jwt, erro := security.GenerateJWT(resp.UserId)
+	if(erro != nil){
+		return "", "", erro
+	}
 
 
-	return "", "", nil
+	//-----Save newRefreshtoken---
+	refreshToken := security.GenerateRefreshToken()
+	refreshT, er := r.SaveRefreshToken(resp.UserId, refreshToken)
+	if(er != nil){
+		return "", "", er
+	}
+
+	//---update last refreshtoken revoked=true
+	resp.Revoked=true
+	update := r.Repo.UpdateRefresToken(resp.Token, resp)
+	if(update != nil){
+		return "", "", update
+	}
+
+	return jwt, refreshT, nil
 }
 
 

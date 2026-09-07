@@ -29,6 +29,11 @@ func (u *userService)Register(userRegisterDTO user.UserRegister)error{
 		return erro
 	}
 	
+	_, er := u.Repo.FindByEmail(userRegisterDTO.Email)
+	if( er == nil ){
+		return errors.New("Email already exist")
+	}
+
 	newUser := &model.User{Name: userRegisterDTO.Name, Email: userRegisterDTO.Email, Password: pass}
 	err := u.Repo.Save(newUser)
 	if( err != nil){
@@ -52,7 +57,7 @@ func (u *userService)Login(userLoginDTO user.UserLogin)(*user.UserResponse, stri
 		//c.IndentedJSON(http.StatusUnauthorized, &security.MessageError{Ok: false, Message: "Password fail"})
 		return nil,"","", errors.New("passowrd incorrect")
 	}
-	tokenJWT, erro := security.GenerateJWT(userr.ID, userr.Email)
+	tokenJWT, erro := security.GenerateJWT(userr.ID)
 	if(erro != nil){
 		//c.IndentedJSON(http.StatusConflict, &security.MessageError{Ok: false, Message: erro.Error()})
 		return nil,"", "", erro

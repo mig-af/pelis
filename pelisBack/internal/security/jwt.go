@@ -3,28 +3,28 @@ package security
 import (
 	"errors"
 	"os"
+	"strconv"
 	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 
 
 
+const JWT_DURATION time.Duration = 15 * time.Minute //minutos de duracion del jwttoken
+var key_jwt  = []byte(os.Getenv("JWT_SECRET"))//pasar a env Variable 
+
 
 type CustomClaim struct{
-	Id uint `json:"id"`
-	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-var key_jwt  = []byte(os.Getenv("JWT_SECRET"))//pasar a env Variable 
 
-func GenerateJWT(id uint, email string)(string, error){
+func GenerateJWT(id uint)(string, error){
 	claims := &CustomClaim{
-		Id: id,
-		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			Subject: strconv.FormatUint(uint64(id), 10),
+			Issuer: "backend.pelis.com",
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(JWT_DURATION)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}

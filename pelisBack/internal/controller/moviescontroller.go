@@ -218,13 +218,13 @@ func (m *MovieController) UpdateMovie(c *gin.Context){
 		return	
 	}
 
-
+	
 	body := c.BindJSON(&movieUpdate)
 	if(body != nil){
 		c.IndentedJSON(http.StatusBadRequest, &security.MessageError{Ok: false, Message: body.Error()})
 		return
 	}
-
+	fmt.Println(movieUpdate.Id)
 	Movie, err := m.Repo.GetById(userId.(uint), movieUpdate.Id)
 	if(err != nil){
 		c.IndentedJSON(http.StatusNotFound, &security.MessageError{Ok: false, Message: err.Error()})

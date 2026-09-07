@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"pelis/internal/domain/interfaces"
 	"pelis/internal/domain/models"
 
@@ -37,6 +38,7 @@ func(m *movieRepository) GetAllMovies(userId uint)([]model.Movie, error){
 func (m *movieRepository) GetById(userId uint, idMovie uint)(model.Movie, error){
 	var movie model.Movie
 	err := m.Db.Where("user_id = ?", userId).First(&movie, idMovie)
+	fmt.Println("asdasd", movie.Duration)
 	if(err.Error != nil){
 		if(errors.Is(err.Error, gorm.ErrRecordNotFound)){
 			return movie, errors.New("Item no found")
