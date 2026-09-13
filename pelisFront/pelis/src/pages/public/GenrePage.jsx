@@ -1,11 +1,11 @@
 import { useParams, Link } from "react-router-dom";
-import { NavBar } from "../../components/NavBar";
-import { MovieSection } from "../../components/MovieSection";
+import { NavBar } from "./components/NavBar";
+import { MovieSection } from "./components/MovieSection";
 import { GetByGennre, GetByGenre } from "../../data/Service";
-import { MovieModal } from "../../components/MovieModal";
-import { MovieCard } from "../../components/MovieCard";
+import { MovieModal } from "./components/MovieModal";
+import { MovieCard } from "./components/MovieCard";
 import { useEffect, useState } from "react";
-import { VideoPlayer } from "../../components/VideoPlayer";
+import { VideoPlayer } from "./components/VideoPlayer";
 
 
 

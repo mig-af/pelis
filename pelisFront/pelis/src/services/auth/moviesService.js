@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MOVIES_ENDPOINT } from "./api";
+import { MOVIES_ENDPOINT } from "../api";
 
 
 const api = axios.create({

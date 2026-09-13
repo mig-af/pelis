@@ -2,7 +2,6 @@
 
 
 
-
 #ssh -R 80:localhost:3000 serveo.net
 export JWT_SECRET
 export URL_DB

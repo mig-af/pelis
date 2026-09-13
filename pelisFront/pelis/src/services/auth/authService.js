@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { API_URL, REGISTER_ENDPOINT, LOGIN_ENDPOINT } from "./api";
+import { API_URL, REGISTER_ENDPOINT, LOGIN_ENDPOINT } from "../api";
 
 
 export async function RegisterService(name, email, password){
